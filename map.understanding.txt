@@ -1,39 +1,100 @@
-// Understanding the map internals in golang 
+📘 Understanding Maps in Go (Internals & Usage)
 
-Like Everyother language Map in Golang was introduced when it was getting tough for devs to handle sequential data 
-when one associates with other .
+Maps in Go provide an efficient way to store and retrieve key–value pairs. They were introduced to handle situations where sequential data structures like slices and arrays become inefficient for key-based lookups.
 
-Syntax => map[keyType]valueType
+🔹 Map Basics
 
-As with other Data Structures Map if just decalred and have no key value returns nil
+Syntax:
 
-Example : nilMap := map[string]int   => Accesing the nilMap cause panic(error) in golang
+map[keyType]valueType
 
-<----------------------------------------------------------------------------------------->
 
-Begining of the map journey in golang
+Maps are reference types in Go.
+
+If a map is declared but not initialized, it is nil.
+
+Example
+var nilMap map[string]int
+fmt.Println(nilMap == nil) // true
+
+// Accessing or writing to a nil map causes a runtime panic:
+nilMap["key"] = 42 // panic: assignment to entry in nil map
+
+🔹 Internal Structure of Maps in Go
+
+Internally, a Go map has a map header and a set of buckets.
+
                         map header
                     ________________ 
- m --------------->| len            |
+ m --------------->| len            |  // number of elements
                    |________________|               
-                   |lg(#buckets)    |            
+                   | lg(#buckets)   |  // number of buckets
                    |________________|                
-                   | bucket array   |            
+                   | bucket array   |  // points to buckets
                    |________________|                
-                   | hash speed     |                
-                   | .              |
-                   |_.______________|
-Each element in that array is called bucket , Go has its interanl 8 bit has algorithm which takes logN where N is number of bucket to
-find the val;ue of a key 
-
-Now refers to the main.go for the real life implementation of golang maps
-
-Internally Golang has its own has algorithm which looksup (map.runTime.lookup()) for a key
+                   | hash seed      |  // randomized for security
+                   | . . .          |
+                   |________________|
 
 
-//*****Key Difference b/w return nil(0) and actual value of key which is 0******//
-Refer to the commaoK Map for the better understandings 
+Buckets: Each element in the array is called a bucket.
+
+Hashing: Go uses an internal hash function to place keys into buckets.
+
+Lookup operations (mapaccess1 / mapaccess2 at runtime) use O(1) average time complexity.
+
+🔹 Map Lookup & The comma, ok Idiom
+
+When accessing a key, you may not always know if it exists.
+Go provides a safe way to check:
+
+scores := map[string]int{"Alice": 90, "Bob": 80}
+
+value := scores["Charlie"]          // returns 0 (default int value)
+value, ok := scores["Charlie"]      // returns 0, false
+
+fmt.Println(value) // 0
+fmt.Println(ok)    // false
 
 
-//maps in Golang can be used as a set as there is not dedicated set in golang
-Refer to the main.go
+👉 Key Difference:
+
+If the key does not exist → Go returns the zero value of the type (e.g., 0 for int).
+
+To distinguish between "key not present" and "key has a zero value", use the comma, ok idiom.
+
+🔹 Using Maps as Sets
+
+Go does not have a built-in set type. However, maps can be used to implement sets:
+
+Set := map[int]bool{}
+
+Slice := []int{1, 2, 3, 4, 5, 4, 5, 6, 2, 3, 7}
+
+for _, value := range Slice {
+	Set[value] = true
+}
+
+fmt.Println("Slice length:", len(Slice), Slice)
+fmt.Println("Set length:", len(Set), Set)
+
+
+Output:
+
+Slice length: 10 [1 2 3 4 5 4 5 6 2 3 7]
+Set length: 7 map[1:true 2:true 3:true 4:true 5:true 6:true 7:true]
+
+
+✅ The map automatically removes duplicates, making it behave like a set.
+
+✅ Summary
+
+Maps in Go are hash-based key–value stores.
+
+A nil map exists but cannot be used for inserts (will panic).
+
+Internally, Go uses buckets and a hash function for efficient lookup.
+
+The comma, ok idiom helps differentiate between missing keys and zero values.
+
+Maps can also be used to implement sets, since Go has no built-in set type.
