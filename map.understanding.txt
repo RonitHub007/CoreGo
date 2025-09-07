@@ -1,0 +1,39 @@
+// Understanding the map internals in golang 
+
+Like Everyother language Map in Golang was introduced when it was getting tough for devs to handle sequential data 
+when one associates with other .
+
+Syntax => map[keyType]valueType
+
+As with other Data Structures Map if just decalred and have no key value returns nil
+
+Example : nilMap := map[string]int   => Accesing the nilMap cause panic(error) in golang
+
+<----------------------------------------------------------------------------------------->
+
+Begining of the map journey in golang
+                        map header
+                    ________________ 
+ m --------------->| len            |
+                   |________________|               
+                   |lg(#buckets)    |            
+                   |________________|                
+                   | bucket array   |            
+                   |________________|                
+                   | hash speed     |                
+                   | .              |
+                   |_.______________|
+Each element in that array is called bucket , Go has its interanl 8 bit has algorithm which takes logN where N is number of bucket to
+find the val;ue of a key 
+
+Now refers to the main.go for the real life implementation of golang maps
+
+Internally Golang has its own has algorithm which looksup (map.runTime.lookup()) for a key
+
+
+//*****Key Difference b/w return nil(0) and actual value of key which is 0******//
+Refer to the commaoK Map for the better understandings 
+
+
+//maps in Golang can be used as a set as there is not dedicated set in golang
+Refer to the main.go

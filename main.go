@@ -3,39 +3,57 @@ package main
 import "fmt"
 
 func main() {
-	fmt.Println("Hello Strings")
 
-	s := "Hello 😊"
-	s2 := s[4:7]
-	s3 := s[:5]
-	s4 := s[6:]
+	studentNameRollMap := make(map[string]int)
 
-	fmt.Println(s2)
-	fmt.Println(s3)
-	fmt.Println(s4)
+	studentNameRollMap["Ronit"] = 1
+	studentNameRollMap["George"] = 2
+	studentNameRollMap["Luca"] = 3
 
+	// Now find the Roll Number of Ronit
+
+	fmt.Println(studentNameRollMap["Ronit"])
+	studentNameRollMap["Luca"] = studentNameRollMap["Luca"] + 1
+	fmt.Println(studentNameRollMap["Luca"])
+
+	//The comma ok idiom in Golang
+
+	commaOkMap := map[string]int{
+		"hello": 5,
+		"world": 0,
+	}
+	fmt.Println(commaOkMap)
+
+	v, ok := commaOkMap["hello"]
+	fmt.Println(v, ok)
+
+	v1, ok1 := commaOkMap["world"]
+	fmt.Println(v1, ok1)
+
+	v2, ok2 := commaOkMap["goodBye"]
+	fmt.Println(v2, ok2)
 	/*
-			Hello Strings
-		o �
-		Hello
-		😊
+						Rather than assign the result of a map read to a single variable, with the comma ok
+					idiom you assign the results of a map read to two variables. The first gets the value
+					associated with the key. The second value returned is a bool. It is usually named ok. If
+					ok is true, the key is present in the map. If ok is false, the key is not present. In this
+					example, the code prints out 5 true, 0 true, and 0 false
+
+		    5 true
+			0 true
+			0 false
 	*/
 
-	fmt.Println(len(s)) // 10
+	// Map as a Set in Golang
 
-	s1 := "Hello 0"
-	fmt.Println(len(s1)) //7
+	Set := map[int]bool{}
 
-	var sp string = "Hello, 😊"
-	var bs []byte = []byte(sp)
-	var rs []rune = []rune(sp)
+	Slice := []int{1, 2, 3, 4, 5, 4, 5, 6, 2, 3, 7}
 
-	fmt.Println(bs)
-	fmt.Println(rs)
+	for _, value := range Slice {
+		Set[value] = true
+	}
+	fmt.Println(len(Slice), Slice)
+	fmt.Println(len(Set), Set)
 
-	/*
-			7
-		bs => [72 101 108 108 111 44 32 240 159 152 138]
-		rs => [72 101 108 108 111 44 32 128522]
-	*/
 }
