@@ -3,80 +3,39 @@ package main
 import "fmt"
 
 func main() {
-	fmt.Println("hello World")
+	fmt.Println("Hello Strings")
+
+	s := "Hello 😊"
+	s2 := s[4:7]
+	s3 := s[:5]
+	s4 := s[6:]
+
+	fmt.Println(s2)
+	fmt.Println(s3)
+	fmt.Println(s4)
 
 	/*
-		Slices : Slices in golang is  a data structure which is built on top of array . Array are not flexible enough means when we predefined
-		the size of an array and later if we need to insert more data to it , Array will not allow us to do it . Hence it will create a mess
-		for development
-
-		var a [4]int => Here it means that it as an array having integer value as sequence and size of , where accessing an elemnt is a[n] nth elemet of array
-
-		Array Literals =>
-		var a = [4]int{1,2,3,4} This is array literal
-		 **** => An array variable denotes the entire array; it is not a pointer to the first array element (as would be the case in C)
-		var a = [...]int{1,2,3,4} in This case both the time the compiler will automatically assume the size of the array.
-
-		< Here Comes the Slices below >
-
-		A slice literal is declared just like an array literal, except you leave out the element count:
-
-		Representing a slice => names = []string{ "ronit", "roy", "rama", "roy", "misti", "roy"}
-
-		Here we have not specified the size of the slices , Slices internally handles it , Slices has two internal properties , one is size and another is capacity
-
-		size means the number of element it has currently and the capacaity means the number maximum it can hold .
-
-		Like here in the `names` slice the size of the slice is 6 but if we look into its capacity its is 8 , capacity increases in 2^n where n is the nearest to reaching 2's power
-
-		Accessing the size and capacity of Slice => len(names) => 6 and cap(names) => 8
-
-		Another way of Representing Slices => name :=make([]string, x, y) [where x is size and y is capacity]
-
-		Slicing a slice :> names[a:b] => it returns the ath to b-1th element , if we omit b then we will get full slice
-
-		<****> The zero value of a slice is nil. The len and cap functions will both return 0 for a nil slice.
-
-		<Here Comes The Slices internals >
+			Hello Strings
+		o �
+		Hello
+		😊
 	*/
 
-	names := []string{"ronit", "roy", "rama", "roy", "misti", "roy"}
+	fmt.Println(len(s)) // 10
 
-	fmt.Println(names) // prints :[ronit roy rama roy misti roy]
+	s1 := "Hello 0"
+	fmt.Println(len(s1)) //7
 
-	newNames := make([]string, 6)
+	var sp string = "Hello, 😊"
+	var bs []byte = []byte(sp)
+	var rs []rune = []rune(sp)
 
-	copy(newNames, names) // copy(destination slice, source slice) , it creates the copy of the former slice
-
-	fmt.Println(newNames) // [ronit roy rama roy misti roy]
-
-	newNames[5] = "roy"
-
-	fmt.Println(names, newNames) // copy cretaes the new reference of the slice to a new array but belo we will see how slicing does the opposite
-
-	sliceNames := names[2:]
-
-	sliceNames[3] = "nath"
-
-	fmt.Println(names, newNames, sliceNames)
+	fmt.Println(bs)
+	fmt.Println(rs)
 
 	/*
-		Now if we go under the hood of the slices we can now make a visula represemtation of how a slice is working
-
-
-		[ *ptr element] ----------
-								 | points to the array first element
-								\ /
-		[ length ]             [ronit][roy][rama][roy][misti][roy]
-
-		[ capacity ]
+			7
+		bs => [72 101 108 108 111 44 32 240 159 152 138]
+		rs => [72 101 108 108 111 44 32 128522]
 	*/
-	/* append() => it helps slices to grow */
-	appendSlices := make([]int, 7)
-	appendSlices = append(appendSlices, 1, 2, 35, 69, 0)
-	fmt.Println(appendSlices) // [0 0 0 0 0 0 0 1 2 35 69 0]
-
-	x := make([]int, 0, 10)
-	x = append(x, 10)
-	fmt.Println(x) //[10]
 }
