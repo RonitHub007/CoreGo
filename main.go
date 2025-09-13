@@ -1,59 +1,38 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"sync"
+)
 
 func main() {
+	// 1. Concurrency Pattern 1 Race Condition
 
-	studentNameRollMap := make(map[string]int)
+	// var data int
+	// go func() {
+	// 	data++
+	// }()
+	// time.Sleep(1 * time.Second)
+	// if data == 0 {
+	// 	fmt.Printf("the value is %v.\n", data)
+	// }
 
-	studentNameRollMap["Ronit"] = 1
-	studentNameRollMap["George"] = 2
-	studentNameRollMap["Luca"] = 3
+	//----------------------------------------
 
-	// Now find the Roll Number of Ronit
-
-	fmt.Println(studentNameRollMap["Ronit"])
-	studentNameRollMap["Luca"] = studentNameRollMap["Luca"] + 1
-	fmt.Println(studentNameRollMap["Luca"])
-
-	//The comma ok idiom in Golang
-
-	commaOkMap := map[string]int{
-		"hello": 5,
-		"world": 0,
+	//2. Memory access Synchronization
+	var memeoryAccess sync.Mutex
+	var data int
+	go func() {
+		memeoryAccess.Lock()
+		data += 1
+		memeoryAccess.Unlock()
+	}()
+	memeoryAccess.Lock()
+	if data == 0 {
+		fmt.Printf("the value is %v.\n", data)
+	} else {
+		fmt.Printf("the value is %v.\n", data)
 	}
-	fmt.Println(commaOkMap)
-
-	v, ok := commaOkMap["hello"]
-	fmt.Println(v, ok)
-
-	v1, ok1 := commaOkMap["world"]
-	fmt.Println(v1, ok1)
-
-	v2, ok2 := commaOkMap["goodBye"]
-	fmt.Println(v2, ok2)
-	/*
-						Rather than assign the result of a map read to a single variable, with the comma ok
-					idiom you assign the results of a map read to two variables. The first gets the value
-					associated with the key. The second value returned is a bool. It is usually named ok. If
-					ok is true, the key is present in the map. If ok is false, the key is not present. In this
-					example, the code prints out 5 true, 0 true, and 0 false
-
-		    5 true
-			0 true
-			0 false
-	*/
-
-	// Map as a Set in Golang
-
-	Set := map[int]bool{}
-
-	Slice := []int{1, 2, 3, 4, 5, 4, 5, 6, 2, 3, 7}
-
-	for _, value := range Slice {
-		Set[value] = true
-	}
-	fmt.Println(len(Slice), Slice)
-	fmt.Println(len(Set), Set)
-
+	memeoryAccess.Unlock()
+	//------------------------------------------
 }
