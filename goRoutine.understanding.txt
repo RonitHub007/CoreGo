@@ -115,3 +115,4 @@ found . they are below =>
 • Our if statement, which checks whether the value of data is 0.
 • Our fmt.Printf statement, which retrieves the value of data for output.
 
+Channel in golang is a medium through which go routines communicates with each other
