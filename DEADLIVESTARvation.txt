@@ -1,0 +1,24 @@
+The Coffman Conditions are as follows:
+Mutual Exclusion
+A concurrent process holds exclusive rights to a resource at any one time.
+Wait For Condition
+A concurrent process must simultaneously hold a resource and be waiting for an
+additional resource.
+No Preemption
+A resource held by a concurrent process can only be released by that process, so
+it fulfills this condition.
+Circular Wait
+too.
+A concurrent process (P1) must be waiting on a chain of other concurrent pro‐
+cesses (P2), which are in turn waiting on it (P1), so it fulfills this final condition
+
+
+
+But concurrency in Go is more than just syntax. In order to harness the power of Go, we need to first understand how Go approaches concurrent execution of code. Go relies on a concurrency model called CSP (Communicating Sequential Processes).
+Livelocks
+Livelocks are processes that are actively performing concurrent operations, but these operations do nothing to move the state of the program forward.
+
+Starvation
+Starvation happens when a process is deprived of necessary resources and is unable to complete its function.
+
+Starvation can happen because of deadlocks or inefficient scheduling algorithms for processes. In order to solve starvation, we need to employ better resource-allotment algorithms that make sure that every process gets its fair share of resources.

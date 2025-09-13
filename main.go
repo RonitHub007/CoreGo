@@ -3,36 +3,29 @@ package main
 import (
 	"fmt"
 	"sync"
+	"time"
 )
 
+type value struct {
+	mu    sync.Mutex
+	value int
+}
+
 func main() {
-	// 1. Concurrency Pattern 1 Race Condition
+	var wg sync.WaitGroup
+	printSum := func(v1, v2 *value) {
+		defer wg.Done()
+		v1.mu.Lock()
+		defer v1.mu.Unlock()
 
-	// var data int
-	// go func() {
-	// 	data++
-	// }()
-	// time.Sleep(1 * time.Second)
-	// if data == 0 {
-	// 	fmt.Printf("the value is %v.\n", data)
-	// }
-
-	//----------------------------------------
-
-	//2. Memory access Synchronization
-	var memeoryAccess sync.Mutex
-	var data int
-	go func() {
-		memeoryAccess.Lock()
-		data += 1
-		memeoryAccess.Unlock()
-	}()
-	memeoryAccess.Lock()
-	if data == 0 {
-		fmt.Printf("the value is %v.\n", data)
-	} else {
-		fmt.Printf("the value is %v.\n", data)
+		time.Sleep(2 * time.Second)
+		v2.mu.Lock()
+		defer v2.mu.Unlock()
+		fmt.Printf("sum=%v\n", v1.value+v2.value)
 	}
-	memeoryAccess.Unlock()
-	//------------------------------------------
+	var a, b value
+	wg.Add(2)
+	go printSum(&a, &b)
+	go printSum(&b, &a)
+	wg.Wait()
 }
