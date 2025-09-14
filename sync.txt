@@ -1,0 +1,19 @@
+A waitgroup waits for a group of goroutines to be finished .
+
+Add : The main goroutine calls the add function which set the number of goroutines to be finished
+Done: When each goroutines finished then Done is called 
+Wait : Wait is implemented at the same time to block the prohram until all goroutines gets finished
+
+Mutex 
+
+A mutex is a mutual exclusion lock that prevents other processes from entering critical section of data while 
+some other process occupy it to prevent race conditions from happening.
+
+What's a critical section?
+So, a critical section can be a piece of code that must not be run by multiple threads at once because the code contains shared resources.
+
+We can use sync.Mutex using the following methods:
+
+Lock() acquires or holds the lock.
+Unlock() releases the lock.
+TryLock() tries to lock and reports whether it succeeded.

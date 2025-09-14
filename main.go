@@ -2,65 +2,105 @@
 
 // import (
 // 	"fmt"
+// 	"sync"
 // )
 
-// func produceNumbers(mainCh chan int) {
-// 	for i := 0; i < 20; i++ {
-// 		mainCh <- i
-// 	}
-// 	close(mainCh)
-// }
+// // func work() {
 
-// func squareNumbers(workerCh chan int, mainCh chan int) {
-// 	// length := len(mainCh)
+// // 	fmt.Println("Working....")
+// // }
 
-// 	for i := 0; i < 20; i++ {
-// 		data := <-mainCh
-// 		workerCh <- data * data
-// 	}
-// 	close(workerCh)
+// //#First way to call
+// // func main() {
+// // 	// As we have mentioned there are three functions a waitgroup have , lets implement and
+// // 	// See how and what they are capable of doing
+
+// // 	var wg sync.WaitGroup
+
+// // 	wg.Add(1)
+// // 	go func() {
+// // 		defer wg.Done()
+// // 		work()
+// // 	}()
+// // 	wg.Wait()
+
+// // }
+
+// // #2nd way of doing it
+// /*
+// func work(wg *sync.WaitGroup) {
+// 	defer wg.Done()
+// 	fmt.Println("Working.....")
 // }
 // func main() {
-// 	ch := make(chan int)
-// 	ch2 := make(chan int)
-// 	go produceNumbers(ch)
+// 	var wg sync.WaitGroup
+// 	wg.Add(1)
 
-// 	go squareNumbers(ch2, ch)
+// 	go work(&wg)
+// 	wg.Wait()
+// }
+// */
 
-// 	// time.Sleep(20 * time.Second)
-// 	for i := 0; i < 20; i++ {
-// 		fmt.Println(<-ch2)
-// 	}
+// // Mutex
+
+// // We will make a counter to update our value
+
+// type Counter struct {
+// 	value int
 // }
 
+// func (c *Counter) updateCounter(n int, wg *sync.WaitGroup) {
+// 	defer wg.Done()
+// 	fmt.Printf("Adding %d to %d\n", n, c.value)
+// 	c.value += n
+// }
+// func main() {
+// 	var count Counter
+// 	var wg sync.WaitGroup
+
+// 	wg.Add(3)
+
+// 	go count.updateCounter(24, &wg)
+// 	go count.updateCounter(24, &wg)
+// 	go count.updateCounter(24, &wg)
+
+// 	wg.Wait()
+// 	fmt.Println(count.value)
+// }
+
+// // In the above example c.Value stays 0 alwas evemn though we are the final output as 72
 package main
 
 import (
 	"fmt"
-	"time"
+	"sync"
 )
 
+type Counter struct {
+	m     sync.Mutex
+	value int
+}
+
+func (c *Counter) Update(n int, wg *sync.WaitGroup) {
+	c.m.Lock()
+	defer wg.Done()
+	fmt.Printf("Adding %d to %d\n", n, c.value)
+	c.value += n
+	c.m.Unlock()
+}
+
 func main() {
+	var wg sync.WaitGroup
 
-	one := make(chan string)
-	two := make(chan string)
+	c := Counter{}
 
-	go func() {
-		time.Sleep(2 * time.Second)
-		two <- "Two"
-	}()
+	wg.Add(4)
 
-	go func() {
-		time.Sleep(1 * time.Second)
-		one <- "One"
-	}()
+	go c.Update(10, &wg)
+	go c.Update(-5, &wg)
+	go c.Update(25, &wg)
+	go c.Update(19, &wg)
 
-	select {
-	case result := <-one:
-		fmt.Println("Recived: ", result)
-	case result := <-two:
-		fmt.Println("Recived: ", result)
-	}
-	close(one)
-	close(two)
+	wg.Wait()
+	fmt.Printf("Result is %d", c.value)
 }
