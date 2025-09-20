@@ -69,38 +69,97 @@
 // }
 
 // // In the above example c.Value stays 0 alwas evemn though we are the final output as 72
+//
+
+// package main
+
+// import (
+// 	"fmt"
+// 	"sync"
+// )
+
+// type Counter struct {
+// 	mu    sync.RWMutex
+// 	value int
+// }
+
+// func (c *Counter) UpdateCounter(value int, Wg *sync.WaitGroup) {
+// 	defer Wg.Done()
+// 	c.mu.Lock()
+// 	fmt.Printf("Adding %d to %d\n", value, c.value)
+// 	c.value += value
+// 	c.mu.Unlock()
+// }
+
+// func (c *Counter) GetValue(wg *sync.WaitGroup) {
+// 	defer wg.Done()
+// 	c.mu.RLock()
+// 	fmt.Println("Get value:", c.value)
+// 	c.mu.RUnlock()
+// 	// time.Sleep(400 * time.Millisecond)
+// }
+// func main() {
+
+// 	var Wg sync.WaitGroup
+// 	c := Counter{}
+// 	// First run writers
+// 	Wg.Add(4)
+// 	go c.UpdateCounter(10, &Wg)
+// 	go c.UpdateCounter(20, &Wg)
+// 	go c.GetValue(&Wg)
+// 	go c.GetValue(&Wg)
+// 	Wg.Wait()
+
+// 	Wg.Wait()
+// }
+
+/*
+sync.Cond => It allows one or more goroutines to wait until another goroutine signals them to continue.
+Useful when goroutines are depepndent on some shared state change
+*/
+
+/*
+Pool : It relates with memory .
+
+sync.Pool  will make it memory effecient
+.Get() : Get resource
+.Put() : Put resource
+*/
 package main
 
 import (
 	"fmt"
 	"sync"
+	"time"
 )
 
-type Counter struct {
-	m     sync.Mutex
-	value int
+type SomeObject struct {
+	Data []byte
 }
 
-func (c *Counter) Update(n int, wg *sync.WaitGroup) {
-	c.m.Lock()
-	defer wg.Done()
-	fmt.Printf("Adding %d to %d\n", n, c.value)
-	c.value += n
-	c.m.Unlock()
+func createObject() *SomeObject {
+	return &SomeObject{
+		Data: make([]byte, 1024*1024),
+	}
 }
 
 func main() {
-	var wg sync.WaitGroup
+	var objects []*SomeObject
 
-	c := Counter{}
+	objectPool := sync.Pool{
+		New: func() interface{} {
+			return createObject()
+		},
+	}
+	for i := 0; i < 1000; i++ {
+		obj := objectPool.Get().(*SomeObject)
+		// obj := createObject()
+		objects = append(objects, obj)
+		objectPool.Put(obj)
+	}
+	time.Sleep(5 * time.Second)
+	// for _, obj := range objects {
+	// }
 
-	wg.Add(4)
-
-	go c.Update(10, &wg)
-	go c.Update(-5, &wg)
-	go c.Update(25, &wg)
-	go c.Update(19, &wg)
-
-	wg.Wait()
-	fmt.Printf("Result is %d", c.value)
+	fmt.Println("Done")
 }
