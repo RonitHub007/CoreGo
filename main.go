@@ -1,165 +1,191 @@
-// package main
+// // package main
 
-// import (
-// 	"fmt"
-// 	"sync"
-// )
+// // import (
+// // 	"fmt"
+// // 	"sync"
+// // )
 
-// // func work() {
-
-// // 	fmt.Println("Working....")
+// // type Person struct {
+// // 	Name string
+// // 	Age  int
+// // 	Data []byte
 // // }
 
-// //#First way to call
-// // func main() {
-// // 	// As we have mentioned there are three functions a waitgroup have , lets implement and
-// // 	// See how and what they are capable of doing
+// // var personPool = sync.Pool{
+// // 	New: func() interface{} {
+// // 		return &Person{
+// // 			Data: make([]byte, 1024),
+// // 		}
+// // 	},
+// // }
 
+// // func main() {
+
+// // 	people := make([]*Person, 0, 10000)
+
+// // 	for i := 0; i < 10000; i++ {
+// // 		p := personPool.Get().(*Person)
+// // 		p.Name = fmt.Sprintf("User%d", i)
+// // 		p.Age = 20 + i
+// // 		people = append(people, p)
+// // 	}
+// // 	for _, p := range people {
+// // 		fmt.Println(p.Name, p.Age, len(p.Data))
+
+// // 		// Reset fields if needed (to avoid old data leaking)
+// // 		p.Name = ""
+// // 		p.Age = 0
+
+// // 		// Put back in pool
+// // 		personPool.Put(p)
+// // 	}
+// // }
+
+// // // package main
+
+// // // import "fmt"
+
+// // // type Person struct {
+// // // 	Name string
+// // // 	Age  int
+// // // 	Data []byte
+// // // }
+
+// // // func newPerson(name string, age int) *Person {
+// // // 	return &Person{
+// // // 		Name: name,
+// // // 		Age:  age,
+// // // 		Data: make([]byte, 1024), // allocate 1KB buffer
+// // // 	}
+// // // }
+
+// // // func main() {
+// // // 	people := make([]*Person, 0, 10000)
+// // // 	for i := 0; i < 10000; i++ {
+// // // 		p := newPerson(fmt.Sprintf("User%d", i), 20+i)
+// // // 		people = append(people, p)
+// // // 	}
+
+// // // 	for _, p := range people {
+// // // 		fmt.Println(p.Name, p.Age, len(p.Data))
+// // // 	}
+// // // }
+
+// // Built a super over system where over will be stopped after the wicket falls
+
+// // package main
+
+// // import (
+// // 	"fmt"
+// // 	"sync"
+// // )
+
+// // type Database struct {
+// // 	Name string
+// // }
+
+// // var (
+// // 	db   *Database
+// // 	once sync.Once
+// // )
+
+// // func connectedDB() *Database {
+// // 	once.Do(func() {
+// // 		fmt.Println("Connection establishing")
+// // 		db = &Database{Name: "MongoDB"}
+// // 	})
+// // 	return db
+// // }
+// // func main() {
 // // 	var wg sync.WaitGroup
 
-// // 	wg.Add(1)
-// // 	go func() {
-// // 		defer wg.Done()
-// // 		work()
-// // 	}()
+// // 	wg.Add(5)
+
+// // 	for i := 0; i < 5; i++ {
+// // 		go func(id int) {
+// // 			defer wg.Done()
+// // 			conn := connectedDB()
+// // 			fmt.Printf("GoRoutine %d got DB: %s\n", id, conn.Name)
+// // 		}(i)
+// // 	}
+
 // // 	wg.Wait()
 
 // // }
 
-// // #2nd way of doing it
-// /*
-// func work(wg *sync.WaitGroup) {
-// 	defer wg.Done()
-// 	fmt.Println("Working.....")
-// }
-// func main() {
-// 	var wg sync.WaitGroup
-// 	wg.Add(1)
+// // Golang Atomic sync pacakge
 
-// 	go work(&wg)
-// 	wg.Wait()
-// }
-// */
+// // package main
 
-// // Mutex
+// // import (
+// // 	"fmt"
+// // 	"sync"
+// // 	"sync/atomic"
+// // 	"time"
+// // )
 
-// // We will make a counter to update our value
-
-// type Counter struct {
-// 	value int
-// }
-
-// func (c *Counter) updateCounter(n int, wg *sync.WaitGroup) {
-// 	defer wg.Done()
-// 	fmt.Printf("Adding %d to %d\n", n, c.value)
-// 	c.value += n
-// }
-// func main() {
-// 	var count Counter
-// 	var wg sync.WaitGroup
-
-// 	wg.Add(3)
-
-// 	go count.updateCounter(24, &wg)
-// 	go count.updateCounter(24, &wg)
-// 	go count.updateCounter(24, &wg)
-
-// 	wg.Wait()
-// 	fmt.Println(count.value)
-// }
-
-// // In the above example c.Value stays 0 alwas evemn though we are the final output as 72
-//
+// // func main() {
+// // 	start := time.Now()
+// // 	var counter int32
+// // 	var wg sync.WaitGroup
+// // 	for i := 0; i < 100000; i++ {
+// // 		wg.Add(1)
+// // 		go func() {
+// // 			atomic.AddInt32(&counter, 1)
+// // 			wg.Done()
+// // 		}()
+// // 	}
+// // 	wg.Wait()
+// // 	end := time.Since(start)
+// // 	fmt.Println("Counter", atomic.LoadInt32(&counter))
+// // 	fmt.Println("timetaken", end)
+// // }
 
 // package main
 
 // import (
 // 	"fmt"
 // 	"sync"
+// 	"time"
 // )
 
-// type Counter struct {
-// 	mu    sync.RWMutex
-// 	value int
+// var (
+// 	cond *sync.Cond
+// 	mu   sync.Mutex
+// 	data int
+// )
+
+// func producer() {
+// 	for i := 1; i <= 5; i++ {
+// 		mu.Lock()
+// 		data = i
+// 		cond.Broadcast()
+// 		mu.Unlock()
+// 		time.Sleep(500 * time.Microsecond)
+// 	}
 // }
 
-// func (c *Counter) UpdateCounter(value int, Wg *sync.WaitGroup) {
-// 	defer Wg.Done()
-// 	c.mu.Lock()
-// 	fmt.Printf("Adding %d to %d\n", value, c.value)
-// 	c.value += value
-// 	c.mu.Unlock()
-// }
-
-// func (c *Counter) GetValue(wg *sync.WaitGroup) {
-// 	defer wg.Done()
-// 	c.mu.RLock()
-// 	fmt.Println("Get value:", c.value)
-// 	c.mu.RUnlock()
-// 	// time.Sleep(400 * time.Millisecond)
+// func consumer() {
+// 	for i := 1; i <= 5; i++ {
+// 		mu.Lock()
+// 		for data != i {
+// 			cond.Wait()
+// 		}
+// 		mu.Unlock()
+// 		fmt.Println(data)
+// 		time.Sleep(500 * time.Microsecond)
+// 	}
 // }
 // func main() {
-
-// 	var Wg sync.WaitGroup
-// 	c := Counter{}
-// 	// First run writers
-// 	Wg.Add(4)
-// 	go c.UpdateCounter(10, &Wg)
-// 	go c.UpdateCounter(20, &Wg)
-// 	go c.GetValue(&Wg)
-// 	go c.GetValue(&Wg)
-// 	Wg.Wait()
-
-// 	Wg.Wait()
+// 	cond = sync.NewCond(&mu)
+// 	go producer()
+// 	go consumer()
+// 	time.Sleep(500 * time.Microsecond)
+// 	fmt.Println("Sync condition checking")
 // }
 
-/*
-sync.Cond => It allows one or more goroutines to wait until another goroutine signals them to continue.
-Useful when goroutines are depepndent on some shared state change
-*/
-
-/*
-Pool : It relates with memory .
-
-sync.Pool  will make it memory effecient
-.Get() : Get resource
-.Put() : Put resource
-*/
 package main
 
-import (
-	"fmt"
-	"sync"
-	"time"
-)
-
-type SomeObject struct {
-	Data []byte
-}
-
-func createObject() *SomeObject {
-	return &SomeObject{
-		Data: make([]byte, 1024*1024),
-	}
-}
-
 func main() {
-	var objects []*SomeObject
 
-	objectPool := sync.Pool{
-		New: func() interface{} {
-			return createObject()
-		},
-	}
-	for i := 0; i < 1000; i++ {
-		obj := objectPool.Get().(*SomeObject)
-		// obj := createObject()
-		objects = append(objects, obj)
-		objectPool.Put(obj)
-	}
-	time.Sleep(5 * time.Second)
-	// for _, obj := range objects {
-	// }
-
-	fmt.Println("Done")
 }
