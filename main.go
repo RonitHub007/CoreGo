@@ -1,82 +1,86 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"time"
+)
 
-func speak(arg string, ch chan string) {
-	ch <- arg
-}
 func main() {
-	// 1. Concurrency Pattern 1 Race Condition
+	/*
+	   Goroutine scheduling in Go
+	   . Simplify Concurrent programming
+	   . Efficient handle parallel tasks such as I/O operations , calculations and more
+	   . Provides a way to perform tasks concurrently without manually managing threads
+	*/
 
-	// var data int
-	// go func() {
-	// 	data++
-	// }()
-	// time.Sleep(1 * time.Second)
-	// if data == 0 {
-	// 	fmt.Printf("the value is %v.\n", data)
-	// }
+	/*
+		Basics of goroutines
 
-	//----------------------------------------
+			1. Creating Goroutines(Use the `go` keyword to start a new goroutine)
+			2. Goroutine Lifecycle
+			3. Goroutine Scheduling
+	*/
 
-	//2. Memory access Synchronization
-	// var memeoryAccess sync.Mutex
-	// var data int
-	// go func() {
-	// 	memeoryAccess.Lock()
-	// 	data += 1
-	// 	memeoryAccess.Unlock()
-	// }()
-	// memeoryAccess.Lock()
-	// if data == 0 {
-	// 	fmt.Printf("the value is %v.\n", data)
-	// } else {
-	// 	fmt.Printf("the value is %v.\n", data)
-	// }
-	// memeoryAccess.Unlock()
-	//-----------------------------------------
+	/*
+		Goroutines Scheduling in Go
+		. Managed by the Go Runtime SCHEDULER
+		. Uses M:N Scheduling Model
+		. Efficent Multiplexing
+	*/
 
-	// 3. Channel
+	/*
+		Common Pitfalls and Best Practices
+		1. Avoid Gorutine Leaks
+		2. Limiting Goroutine Creation
+		3. Proper Error Handling
+		4. Synchronization
+	*/
 
-	// var ch chan T
-	// chan means channel and T is the tyope of data we are going to send
-	// var ch chan string
-	// ch2 := make(chan string)
-	// fmt.Println(ch, ch2)
+	/* Goroutines are just functions that leave the main thread and run in the background and come back to join the main thread once the functions are finished/ready to return any values */
+	/* GoRoutines do not stop the program flow and are non blocking */
+	var err error
+	fmt.Println("Beginning Program")
+	go sayHello() // Extract the function from main thread to background and when the function is finished the function backs to main thread
+	fmt.Println("Afrer Sayhello")
+	go func() {
+		err = doWork()
+	}()
+	go printNumbers()
+	go printLetters()
 
-	// Declaring and passing and receving data through channel(Unbuffered)
-	// ch := make(chan string)
-	// go speak("Hello World", ch)
-
-	// data := <-ch
-	// fmt.Println(data)
-
-	// Buffered Channel
-
-	// ch := make(chan int, 3)
-
-	// fmt.Println("Buffer initiation")
-	// ch <- 1
-	// ch <- 2
-	// ch <- 3
-	// fmt.Println("Buffer receievs starts")
-
-	// fmt.Println(<-ch)
-	// fmt.Println(<-ch)
-	// fmt.Println(<-ch)
-
-	// Directional Channel
-	ch := make(chan bool)
-
-	go sayTrue(true, ch)
-
-	// ch2 := make(chan bool)
-
-	// ch2 <- <-ch
-	fmt.Println(<-ch)
+	time.Sleep(2 * time.Second)
+	if err != nil {
+		fmt.Println("Error")
+	} else {
+		fmt.Println("Work done")
+	}
 
 }
 
-func sayTrue(word bool, ch chan<- bool) {
-	ch <- word
+/*
+Goroutine lifecycle
+M => number of goroutines mapped to N = number of OS Threads
+Goroutines helps achieve concurrency and go scheduler helps achieve parallalism
+*/
+func sayHello() {
+	fmt.Println("Hello From GoRoutine")
+	time.Sleep(1 * time.Second)
+}
+func printNumbers() {
+	for i := 0; i < 5; i += 1 {
+		fmt.Println(i, time.Now())
+		time.Sleep(100 * time.Millisecond)
+	}
+}
+func printLetters() {
+	for _, v := range "Ronit" {
+		fmt.Println(string(v), time.Now())
+		time.Sleep(200 * time.Millisecond)
+	}
+}
+
+// Error Propagation in Golang , error needs to be back at main thread
+func doWork() error {
+	time.Sleep(1 * time.Second)
+	return fmt.Errorf("an error in doWork")
 }
