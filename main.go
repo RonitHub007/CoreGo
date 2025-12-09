@@ -38,22 +38,24 @@ func main() {
 
 	/* Goroutines are just functions that leave the main thread and run in the background and come back to join the main thread once the functions are finished/ready to return any values */
 	/* GoRoutines do not stop the program flow and are non blocking */
-	var err error
-	fmt.Println("Beginning Program")
-	go sayHello() // Extract the function from main thread to background and when the function is finished the function backs to main thread
-	fmt.Println("Afrer Sayhello")
-	go func() {
-		err = doWork()
-	}()
-	go printNumbers()
-	go printLetters()
+	// var err error
+	// fmt.Println("Beginning Program")
+	// go sayHello() // Extract the function from main thread to background and when the function is finished the function backs to main thread
+	// fmt.Println("Afrer Sayhello")
+	// go func() {
+	// 	err = doWork()
+	// }()
+	// go printNumbers()
+	// go printLetters()
 
-	time.Sleep(2 * time.Second)
-	if err != nil {
-		fmt.Println("Error")
-	} else {
-		fmt.Println("Work done")
-	}
+	// time.Sleep(2 * time.Second)
+	// if err != nil {
+	// 	fmt.Println("Error")
+	// } else {
+	// 	fmt.Println("Work done")
+	// }
+
+	Channels()
 
 }
 
@@ -83,4 +85,52 @@ func printLetters() {
 func doWork() error {
 	time.Sleep(1 * time.Second)
 	return fmt.Errorf("an error in doWork")
+}
+
+/*
+Channels
+	1. Why Use Channels ?
+		=> Enable safe and effcient communication between concurrent goRoutines
+		=> Help synchronize and manage the flow of data in concurrent programs
+    2. basics of Channels
+		make(chan type)
+	3. Create goRoutine to e channels
+	4. Channels in Go is blocking but GoRoutines are non-blocking
+*/
+
+func Channels() {
+	// variable := make(chan type)
+	greeting := make(chan string)
+
+	greetString := "hello Ron"
+
+	// Receive :=> channelName <- value
+	go func() {
+		greeting <- greetString
+		greeting <- "World"
+		for _, j := range "Ronit" {
+			greeting <- string(j)
+		}
+	}()
+	go func() {
+		receiver := <-greeting // Receving in channels is non-blocking , it is communicating b/w different go routtins, like main and Channels
+		receiver = <-greeting
+
+		for range len("Ronit") {
+			fmt.Println(<-greeting)
+		}
+		fmt.Println(receiver)
+	}()
+	time.Sleep(1 * time.Millisecond)
+}
+
+/*
+Buffered Channel : Means channel with storage
+allows channels to hold a limited number of values
+
+buffered vs Unbuffered is bufferd channels allows asynchronous, helps load balancing
+*/
+
+func bufferedChannel() {
+
 }
