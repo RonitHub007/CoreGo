@@ -55,7 +55,11 @@ func main() {
 	// 	fmt.Println("Work done")
 	// }
 
-	Channels()
+	// Channels()
+	// bufferedChannel()
+	// bufferedChannelAdv()
+	// channelSync()
+	channelSyncnew()
 
 }
 
@@ -130,7 +134,84 @@ allows channels to hold a limited number of values
 
 buffered vs Unbuffered is bufferd channels allows asynchronous, helps load balancing
 */
+/*
+Why Use Buffered Channels ?
+	1. Asynchronous Communiction
+	2. Load Balancing
+	3. Flow Control
+Creating Buffered Channels
+	1. make(chan Type, capacity)
+	2. Buffer capacity
+Key concept of channel buffereing
+	1. Blocking behaviour
+	2. Non-Blocking Operations
+	3. Impact on performance
+Best Practices for Using Bufffered Channels
+	2. Avoid Over buffering
+	Graceful shutdown
+	Monitroing Buffer channing
 
+
+*/
 func bufferedChannel() {
+	// make(chan Type, capacity)
+
+	ch := make(chan int, 2)
+
+	ch <- 1
+	ch <- 2
+	go func() {
+		time.Sleep(2 * time.Second)
+		fmt.Println("Received: ", <-ch)
+	}()
+	ch <- 3
+	fmt.Println("Value: ", <-ch)
+	fmt.Println("Value: ", <-ch)
+	fmt.Println("Buffered Channels")
 
 }
+
+func bufferedChannelAdv() {
+	// Blocking on receive only if the buffer is empty
+	ch := make(chan int, 2)
+	go func() {
+		time.Sleep(2 * time.Second)
+		ch <- 1
+		ch <- 2
+	}()
+	fmt.Println("Value: ", <-ch)
+}
+
+/*
+Channel Synchronization
+ 1. Ensures that the data is properly exchanged between Goroutines
+ 2. Coordinates the execution flow to avoid race conditions and ensures predictable behaviour
+ 3. Helps manage the lifecycle of goroutines and the completion of tasks
+*/
+func channelSync() {
+	done := make(chan struct{})
+
+	go func() {
+		fmt.Println("Working...")
+		time.Sleep(2 * time.Second)
+		done <- struct{}{}
+	}()
+
+	<-done
+	fmt.Println("Finished.....")
+}
+
+func channelSyncnew() {
+	ch := make(chan int)
+
+	go func() {
+		fmt.Println("proces...")
+		ch <- 9
+		time.Sleep(1 * time.Second)
+		fmt.Println("sENT VALUE")
+	}()
+	value := <-ch
+	fmt.Println(value)
+}
+
+// func
