@@ -59,7 +59,10 @@ func main() {
 	// bufferedChannel()
 	// bufferedChannelAdv()
 	// channelSync()
-	channelSyncnew()
+	// channelSyncnew()
+	// channelDirection()
+	// MultiplexingChannel()
+	nonBlockingChannelOp()
 
 }
 
@@ -214,4 +217,101 @@ func channelSyncnew() {
 	fmt.Println(value)
 }
 
-// func
+/*
+Channel Directions
+Why Are Channel Directios Important ?
+ 1. Improve code clarity and maintainability
+ 2. Prevent unintended operations on channels
+ 3. Enhance type safety by clearly defining the channel's purpose
+
+Basic Concepts of Channels Directions
+ 1. Unidirectional Channels
+ 2. Send only Channels
+ 3. Receive Only Channels
+
+Defining Channels Directions in Function Signatures
+ 1. Send only (func produceData( ch chan<-int))
+ 2. Receive Only (func consumeData(ch <- chan int))
+ 3. Bidirectional Channels (func bidirectional(ch chan int))
+*/
+func channelDirection() {
+	ch := make(chan int)
+
+	go func(ch chan<- int) {
+		for i := range 5 {
+			ch <- i
+		}
+		close(ch)
+	}(ch)
+	// for value := range ch {
+	// 	fmt.Println("Received: ", value)
+	// }
+	receiveOnlyChanne(ch)
+}
+
+func receiveOnlyChanne(ch <-chan int) {
+	for value := range ch {
+		fmt.Println(value)
+	}
+}
+
+/*
+Multiplexing using select
+
+1. Why Use Multiplexing
+	concurrency, non blocking I/O, Timeouts & Cancellation
+*/
+
+func MultiplexingChannel() {
+	ch1 := make(chan int)
+	ch2 := make(chan int)
+	go func() {
+		time.Sleep(1 * time.Second)
+		ch1 <- 1
+		close(ch1)
+
+	}()
+	go func() {
+		time.Sleep(1 * time.Second)
+		ch2 <- 2
+		close(ch2)
+	}()
+
+	time.Sleep(1000 * time.Millisecond)
+	select {
+	case msg := <-ch1:
+		fmt.Println("Received from ch1: ", msg)
+
+	case msg := <-ch2:
+		fmt.Println("Received from ch2: ", msg)
+	default:
+		fmt.Println("No channels ready.....")
+	}
+}
+
+func nonBlockingChannelOp() {
+	data := make(chan int)
+	quit := make(chan bool)
+
+	go func() {
+		for {
+			select {
+			case d := <-data:
+				fmt.Println("received: ", d)
+			case <-quit:
+				fmt.Println("Stopping")
+				return
+
+			default:
+				fmt.Println("Waiting for data.....")
+				time.Sleep(200 * time.Millisecond)
+
+			}
+		}
+	}()
+	for i := range 5 {
+		data <- i
+		time.Sleep(time.Second)
+	}
+	quit <- true
+}
